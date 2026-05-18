@@ -1,0 +1,5 @@
+Loaded 9742 movies from D:\movie_recommendation_system\data\movies.csv
+Missing real posters before enrichment: 8047
+No TMDB_API_KEY found. Create D:\movie_recommendation_system\.env with TMDB_API_KEY=your_key
+Falling back to public TMDB pages (~3x slower).
+Resolving posters for 8047 titles via TMDB public pages (4 workers)...

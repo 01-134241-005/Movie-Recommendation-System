@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ selected.title }} | Cinephile World</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body data-chart-title="{{ selected.title }}">
+    <div class="loader" id="loader"><span></span></div>
+    <nav class="navbar">
+        <a class="brand" href="{{ url_for('index') }}">Cinephile<span>World</span></a>
+        <div class="nav-links">
+            <a href="{{ url_for('index') }}">Home</a>
+            <a href="{{ url_for('project_metrics') }}">Metrics</a>
+        </div>
+    </nav>
+
+    <header class="details-hero">
+        <img class="details-poster" src="{{ selected.poster }}" alt="{{ selected.title }} poster" data-title="{{ selected.title }}" data-year="{{ selected.release_year }}" data-movie-id="{{ selected.movie_id }}">
+        <div class="details-copy">
+            <p class="eyebrow">Selected Movie</p>
+            <h1>{{ selected.title }}</h1>
+            <div class="movie-meta">
+                <span>{{ selected.release_year }}</span>
+                <span>{{ selected.genre.replace('|', ' / ') }}</span>
+                <span>{{ "%.1f"|format(selected.rating|float) }}/10</span>
+                <span>{{ selected.runtime }} min</span>
+                <span>{{ selected.region }}</span>
+            </div>
+            <p>{{ selected.synopsis }}</p>
+            {% if selected.cast %}<p class="cast">Cast: {{ selected.cast.replace('|', ', ') }}</p>{% endif %}
+            <form class="search-panel compact" action="{{ url_for('index') }}" method="GET" autocomplete="off">
+                <div class="search-box">
+                    <input id="movieSearch" name="movie_title" type="text" placeholder="Search another movie">
+                    <button type="submit" name="recommend" value="1">Recommend</button>
+                    <div class="suggestions" id="suggestions"></div>
+                </div>
+                <div class="filters">
+                    <select name="genre">
+                        <option value="">Genre</option>
+                        {% for genre in options.genres %}
+                        <option value="{{ genre }}" {% if filters.genre == genre %}selected{% endif %}>{{ genre }}</option>
+                        {% endfor %}
+                    </select>
+                    <select name="region">
+                        <option value="">Region</option>
+                        {% for region in options.regions %}
+                        <option value="{{ region }}" {% if filters.region == region %}selected{% endif %}>{{ region }}</option>
+                        {% endfor %}
+                    </select>
+                    <select name="language">
+                        <option value="">Language</option>
+                        {% for language in options.languages %}
+                        <option value="{{ language }}" {% if filters.language == language %}selected{% endif %}>{{ language }}</option>
+                        {% endfor %}
+                    </select>
+                    <select name="year">
+                        <option value="">Year</option>
+                        {% for year in options.years %}
+                        <option value="{{ year }}" {% if filters.year|string == year|string %}selected{% endif %}>{{ year }}</option>
+                        {% endfor %}
+                    </select>
+                    <select name="rating">
+                        <option value="">Minimum rating</option>
+                        {% for value in ['3.0','4.0','5.0','6.0','7.0','8.0','9.0'] %}
+                        <option value="{{ value }}" {% if filters.rating == value %}selected{% endif %}>{{ value }}+</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </form>
+        </div>
+    </header>
+
+    <main>
+        <section class="section-head">
+            <div>
+                <p class="eyebrow">AI Recommendations</p>
+                <h2>10 Similar Movies</h2>
+            </div>
+            <a class="outline-button" href="{{ url_for('project_metrics') }}">Open ML Metrics</a>
+        </section>
+
+        <section class="carousel">
+            {% for movie in recommendations %}
+            <a class="movie-card wide" href="{{ url_for('movie_details', title=movie.title) }}">
+                <img src="{{ movie.poster }}" alt="{{ movie.title }} poster" data-title="{{ movie.title }}" data-year="{{ movie.release_year }}" data-movie-id="{{ movie.movie_id }}">
+                <div class="card-body">
+                    <div class="card-title">
+                        <h3>{{ movie.title }}</h3>
+                        <strong>{{ "%.1f"|format(movie.similarity|float) }}%</strong>
+                    </div>
+                    <p class="movie-meta small">{{ movie.release_year }} | {{ movie.region }} | {{ movie.language }} | {{ "%.1f"|format(movie.rating|float) }}/10</p>
+                    <p class="genre">{{ movie.genre.replace('|', ' / ') }}</p>
+                    <p>{{ movie.synopsis }}</p>
+                    <p class="cast">Cast: {{ movie.cast.replace('|', ', ') }}</p>
+                </div>
+            </a>
+            {% endfor %}
+        </section>
+
+        <section class="section-head stacked">
+            <p class="eyebrow">Recommendation Analytics</p>
+            <h2>Charts for {{ selected.title }}</h2>
+            <p class="hero-copy">Graphs update from the 10 similar movies shown above.</p>
+        </section>
+        <section class="chart-grid recommendation-charts">
+            <article class="chart-panel"><h3>Similarity Scores</h3><div class="chart-canvas-wrap"><canvas id="similarityChart"></canvas></div></article>
+            <article class="chart-panel"><h3>Shared Genres</h3><div class="chart-canvas-wrap"><canvas id="genreChart"></canvas></div></article>
+            <article class="chart-panel"><h3>Regions in Results</h3><div class="chart-canvas-wrap"><canvas id="recRegionChart"></canvas></div></article>
+            <article class="chart-panel"><h3>Rating Comparison</h3><div class="chart-canvas-wrap"><canvas id="recRatingChart"></canvas></div></article>
+        </section>
+    </main>
+
+    <footer>
+        <p>Cinephile World helps you compare similar films from the catalog.</p>
+    </footer>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

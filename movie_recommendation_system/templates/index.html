@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cinephile World | Movie Recommendations</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="loader" id="loader"><span></span></div>
+
+    <nav class="navbar">
+        <a class="brand" href="{{ url_for('index') }}">Cinephile<span>World</span></a>
+        <div class="nav-links">
+            <a href="{{ url_for('index') }}">Home</a>
+            <a href="{{ url_for('project_metrics') }}">Metrics</a>
+        </div>
+    </nav>
+
+    <header class="hero cinematic-hero" style="background-image: linear-gradient(90deg, rgba(4,4,7,.96), rgba(4,4,7,.6), rgba(4,4,7,.96)), url('{{ hero.backdrop }}');">
+        <iframe
+            id="trailerBackground"
+            class="trailer-bg"
+            src="https://www.youtube.com/embed/{{ hero.trailer }}?autoplay=1&mute=1&controls=0&loop=1&playlist={{ hero.trailer }}&modestbranding=1&showinfo=0"
+            title="{{ hero.title }} trailer background"
+            allow="autoplay; encrypted-media"
+            loading="lazy">
+        </iframe>
+        <div class="hero-content">
+            <p class="eyebrow">Movie Recommendations</p>
+            <h1>{{ hero.title }}</h1>
+            <div class="movie-meta">
+                <span>{{ hero.year }}</span>
+                <span>{{ hero.genre }}</span>
+                <span>{{ "%.1f"|format(hero.rating) }}/10</span>
+            </div>
+            <p class="hero-copy">Search a film and discover similar movies from the catalog.</p>
+
+            <form class="search-panel" action="{{ url_for('index') }}" method="GET" autocomplete="off">
+                <div class="search-box">
+                    <input id="movieSearch" name="movie_title" type="text" placeholder="Search a movie, e.g. Batman" value="{{ request.args.get('movie_title', '') }}">
+                    <button type="submit" name="recommend" value="1">Recommend</button>
+                    <div class="suggestions" id="suggestions"></div>
+                </div>
+                <div class="filters">
+                    <select name="genre">
+                        <option value="">Genre</option>
+                        {% for genre in options.genres %}
+                        <option value="{{ genre }}" {% if filters.genre == genre %}selected{% endif %}>{{ genre }}</option>
+                        {% endfor %}
+                    </select>
+                    <select name="region">
+                        <option value="">Region</option>
+                        {% for region in options.regions %}
+                        <option value="{{ region }}" {% if filters.region == region %}selected{% endif %}>{{ region }}</option>
+                        {% endfor %}
+                    </select>
+                    <select name="language">
+                        <option value="">Language</option>
+                        {% for language in options.languages %}
+                        <option value="{{ language }}" {% if filters.language == language %}selected{% endif %}>{{ language }}</option>
+                        {% endfor %}
+                    </select>
+                    <select name="year">
+                        <option value="">Year</option>
+                        {% for year in options.years %}
+                        <option value="{{ year }}" {% if filters.year|string == year|string %}selected{% endif %}>{{ year }}</option>
+                        {% endfor %}
+                    </select>
+                    <select name="rating">
+                        <option value="">Minimum rating</option>
+                        {% for value in ['3.0','4.0','5.0','6.0','7.0','8.0','9.0'] %}
+                        <option value="{{ value }}" {% if filters.rating == value %}selected{% endif %}>{{ value }}+</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </form>
+        </div>
+
+        <section class="featured-strip" aria-label="Featured real movie posters">
+            {% for film in featured %}
+            <a class="featured-film" href="{{ url_for('movie_details', title=film.title) }}" data-trailer="{{ film.trailer }}" style="background-image: url('{{ film.poster }}');">
+                <div>
+                    <strong>{{ film.title }}</strong>
+                    <span>{{ film.year }} | {{ "%.1f"|format(film.rating) }}</span>
+                </div>
+            </a>
+            {% endfor %}
+        </section>
+    </header>
+
+    <main>
+        <section class="section-head">
+            <div>
+                <p class="eyebrow">Explore</p>
+                <h2>Recommended Movie Catalog</h2>
+            </div>
+            <a class="outline-button" href="{{ url_for('project_metrics') }}">Open Metrics</a>
+        </section>
+
+        <section class="movie-grid">
+            {% for movie in movies %}
+            <a class="movie-card" href="{{ url_for('movie_details', title=movie.title) }}">
+                <img src="{{ movie.poster }}" alt="{{ movie.title }} poster" data-title="{{ movie.title }}" data-year="{{ movie.release_year }}" data-movie-id="{{ movie.movie_id }}">
+                <div class="card-body">
+                    <div class="card-title">
+                        <h3>{{ movie.title }}</h3>
+                        <strong>{{ "%.1f"|format(movie.rating|float) }}</strong>
+                    </div>
+                    <p class="movie-meta small">{{ movie.release_year }} | {{ movie.region }} | {{ movie.language }}</p>
+                    <p class="genre">{{ movie.genre.replace('|', ' / ') }}</p>
+                    <p>{{ movie.synopsis[:145] }}...</p>
+                    {% if movie.cast %}<p class="cast">Cast: {{ movie.cast.replace('|', ', ') }}</p>{% endif %}
+                </div>
+            </a>
+            {% endfor %}
+        </section>
+    </main>
+
+    <footer>
+        <p>Cinephile World helps you explore similar films quickly.</p>
+    </footer>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

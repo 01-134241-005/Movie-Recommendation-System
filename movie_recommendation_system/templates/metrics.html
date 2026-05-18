@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metrics | Cinephile World</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="loader" id="loader"><span></span></div>
+    <nav class="navbar">
+        <a class="brand" href="{{ url_for('index') }}">Cinephile<span>World</span></a>
+        <div class="nav-links">
+            <a href="{{ url_for('index') }}">Home</a>
+            <a href="#metrics">Scores</a>
+            <a href="#charts">Graphs</a>
+            <a href="#architecture">Architecture</a>
+        </div>
+    </nav>
+
+    <main class="metrics-page">
+        <section id="metrics" class="section-head stacked">
+            <p class="eyebrow">Academic Requirement Dashboard</p>
+            <h1>Metrics</h1>
+            <p class="hero-copy">Type a movie title to update scores and graphs for that film's recommendations.</p>
+        </section>
+
+        <section class="metric-grid" id="metricCards">
+            <div class="metric-card" data-metric="accuracy"><span>Avg Similarity</span><strong>{{ metrics.accuracy }}</strong></div>
+            <div class="metric-card" data-metric="precision"><span>Recommendations</span><strong>{{ metrics.precision }}</strong></div>
+            <div class="metric-card" data-metric="recall"><span>Avg Rating</span><strong>{{ metrics.recall }}</strong></div>
+            <div class="metric-card" data-metric="f1_score"><span>Selected Rating</span><strong>{{ metrics.f1_score }}</strong></div>
+            <div class="metric-card" data-metric="mean_accuracy"><span>Best Match</span><strong>{{ metrics.mean_accuracy }}</strong></div>
+            <div class="metric-card" data-metric="std_accuracy"><span>Lowest Match</span><strong>{{ metrics.std_accuracy }}</strong></div>
+            <div class="metric-card" data-metric="total_movies"><span>Result Count</span><strong>{{ total_movies }}</strong></div>
+            <div class="metric-card" data-metric="top_region"><span>Film Region</span><strong>Global</strong></div>
+        </section>
+
+        <section id="charts" class="section-head stacked">
+            <p class="eyebrow">Chart Code</p>
+            <h2>Live Graphs Rendered from Data</h2>
+            <div class="metrics-search search-box">
+                <input id="chartMovieSearch" name="title" type="text" placeholder="Search a movie — charts and metrics update automatically" autocomplete="off">
+                <button type="button" id="resetCharts">Reset to global metrics</button>
+                <div class="suggestions" id="chartSuggestions"></div>
+            </div>
+        </section>
+        <section class="chart-grid">
+            <article class="chart-panel"><h3>KNN Scores</h3><div class="chart-canvas-wrap"><canvas id="metricsChart"></canvas></div></article>
+            <article class="chart-panel"><h3>Confusion Matrix</h3><div class="chart-canvas-wrap"><canvas id="confusionChart"></canvas></div></article>
+            <article class="chart-panel"><h3>Movies by Region</h3><div class="chart-canvas-wrap"><canvas id="regionChart"></canvas></div></article>
+            <article class="chart-panel"><h3>Rating Distribution</h3><div class="chart-canvas-wrap"><canvas id="ratingChart"></canvas></div></article>
+        </section>
+
+        <section id="architecture" class="section-head stacked">
+            <p class="eyebrow">System Design</p>
+            <h2>Architecture Diagram</h2>
+            <p class="hero-copy">End-to-end pipeline from catalog ingestion through KNN recommendations and evaluation.</p>
+        </section>
+        <section class="architecture-panel">
+            <img
+                src="{{ url_for('architecture_file') }}"
+                alt="Movie Recommendation System architecture diagram"
+                class="architecture-svg"
+                loading="lazy">
+        </section>
+    </main>
+
+    <footer>
+        <p>Train/test split, KNN, TF-IDF, F1 score, and recommendation-aware canvas charts are included for AI Lab evaluation.</p>
+    </footer>
+    <script>
+        window.GLOBAL_METRICS = {{ metrics | tojson }};
+        window.GLOBAL_TOTAL = {{ total_movies }};
+        window.GLOBAL_LABELS = {
+            accuracy: "Accuracy",
+            precision: "Precision",
+            recall: "Recall",
+            f1_score: "F1 Score",
+            mean_accuracy: "Mean Accuracy",
+            std_accuracy: "Standard Deviation",
+            total_movies: "Total Movies",
+            top_region: "ML Model"
+        };
+    </script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
